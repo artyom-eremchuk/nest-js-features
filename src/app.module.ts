@@ -5,12 +5,12 @@ import { UserModule } from './user/user.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { User } from './user/user.entity';
-import config from './config/config';
+import { appConfig, ormConfig } from './configs';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      load: [config],
+      load: [appConfig, ormConfig],
       isGlobal: true,
       ignoreEnvFile: false,
     }),
@@ -18,7 +18,7 @@ import config from './config/config';
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => {
         return {
-          ...configService.get<TypeOrmModuleOptions>('app.database'),
+          ...configService.get<TypeOrmModuleOptions>('database'),
           entities: [User],
         };
       },
