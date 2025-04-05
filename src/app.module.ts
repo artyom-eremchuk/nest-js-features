@@ -5,6 +5,7 @@ import { UserModule } from './user/user.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { appConfig } from './configs';
+import { Logger } from '@nestjs/common';
 
 @Module({
   imports: [
@@ -15,7 +16,11 @@ import { appConfig } from './configs';
     }),
     UserModule,
   ],
-  providers: [AppService, PrismaService],
+  providers: [AppService, PrismaService, Logger],
   controllers: [AppController],
 })
-export class AppModule {}
+export class AppModule {
+  constructor(private readonly logger: Logger) {
+    this.logger.log('[AppModule] Initialized.');
+  }
+}
