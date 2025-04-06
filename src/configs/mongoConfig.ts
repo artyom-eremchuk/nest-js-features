@@ -7,8 +7,9 @@ export default registerAs(MONGO_DATABASE, () => {
   const port = process.env.MONGO_PORT || 27017;
   const username = process.env.MONGO_USERNAME || 'admin';
   const password = process.env.MONGO_PASSWORD || 'pass';
+  const database = process.env.MONGO_DATABASE || 'database';
 
   return {
-    uri: `mongodb://${username}:${password}@${host}:${port}`,
+    uri: `mongodb://${username}:${password}@${host}:${port}/${database}?authSource=admin`,
   };
 });
