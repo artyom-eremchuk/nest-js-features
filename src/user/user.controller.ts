@@ -6,6 +6,7 @@ import {
   Body,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dtos/create-user.dto';
@@ -26,7 +27,7 @@ export class UserController {
 
   @ApiOperation({ summary: 'Получить всех пользователей' })
   @ApiResponse({ status: 200, description: 'Список пользователей' })
-  @Get()
+  @Get('/all')
   findAll() {
     return this.userService.findAll();
   }
@@ -37,6 +38,14 @@ export class UserController {
   @Get(':id')
   findOne(@Param('id') id: number) {
     return this.userService.findOne(id);
+  }
+
+  @ApiOperation({ summary: 'Получить пользователя по имени' })
+  @ApiResponse({ status: 200, description: 'Пользователь найден' })
+  @ApiResponse({ status: 404, description: 'Пользователь не найден' })
+  @Get()
+  findByName(@Query('name') name: string) {
+    return this.userService.findByName(name);
   }
 
   @ApiOperation({ summary: 'Обновить пользователя по ID' })

@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { UserModule } from './user/user.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { UserModule } from './user/user.module';
+import { AuthModule } from './auth/auth.module';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { User } from './user/user.entity';
 import { appConfig, ormConfig } from './configs';
 
@@ -24,6 +25,7 @@ import { appConfig, ormConfig } from './configs';
       },
       inject: [ConfigService],
     }),
+    AuthModule,
     UserModule,
   ],
   controllers: [AppController],
