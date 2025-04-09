@@ -1,11 +1,4 @@
-import {
-  Controller,
-  Post,
-  Request,
-  Response,
-  Body,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Post, Request, Body, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { CreateUserDto } from 'src/user/dtos/create-user.dto';
 import { LocalAuthGuard } from './local-auth.guard';
@@ -30,7 +23,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Авторизация пользователя' })
   @ApiBody({ type: LoginUserDto })
   @ApiResponse({
-    status: 200,
+    status: 201,
     description: 'Пользователь успешно вошел в систему',
   })
   @UseGuards(LocalAuthGuard)
@@ -41,24 +34,12 @@ export class AuthController {
 
   @ApiOperation({ summary: 'Выход пользователя' })
   @ApiResponse({
-    status: 200,
+    status: 201,
     description: 'Пользователь успешно вышел из системы. Сессия была очищена.',
   })
-  @ApiResponse({
-    status: 204,
-    description:
-      'Сессия уже была пустая или не существовала. Выход завершён без данных.',
-  })
   @Post('logout')
-  async logout(@Request() req, @Response() res) {
-    if (req.session && req.session.passport) {
-      req.logout();
-
-      return res
-        .status(200)
-        .json({ message: 'Пользователь успешно вышел из системы' });
-    }
-
-    return res.sendStatus(204);
+  async logout(@Request() req) {
+    req.session.destroy();
+    return { msg: 'Сессия пользователя завершена.' };
   }
 }

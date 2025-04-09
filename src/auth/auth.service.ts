@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import { User } from '../user/user.entity';
 import { CreateUserDto } from 'src/user/dtos/create-user.dto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
@@ -11,11 +12,22 @@ export class AuthService {
     return this.userService.create(createUserDto);
   }
 
-  async validateUser(username: string, password: string): Promise<User | null> {
+  async validateUser(
+    username: string,
+    password: string,
+  ): Promise<Partial<User> | null> {
     const user = await this.userService.findByName(username);
 
-    if (user && user.password === password) {
-      return user;
+    if (!user) {
+      throw new NotFoundException('Пользователь не найден');
+    }
+
+    if (user && (await bcrypt.compare(password, user.password))) {
+      return {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+      };
     }
 
     return null;

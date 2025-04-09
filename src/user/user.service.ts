@@ -8,6 +8,7 @@ import { Repository } from 'typeorm';
 import { User } from './user.entity';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -16,8 +17,8 @@ export class UserService {
     private userRepository: Repository<User>,
   ) {}
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
-    const { name, email } = createUserDto;
+  async create(createUserDto: CreateUserDto): Promise<Partial<User>> {
+    const { name, email, password } = createUserDto;
 
     const existingUser = await this.userRepository.findOne({
       where: { name, email },
@@ -29,7 +30,19 @@ export class UserService {
       );
     }
 
-    return this.userRepository.save(createUserDto);
+    const saltOrRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltOrRounds);
+
+    const user = await this.userRepository.save({
+      name,
+      email,
+      password: hashedPassword,
+    });
+
+    return {
+      id: user.id,
+      name: user.name,
+    };
   }
 
   async findAll(): Promise<User[]> {
