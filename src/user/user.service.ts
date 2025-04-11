@@ -49,7 +49,7 @@ export class UserService {
     return this.userRepository.find();
   }
 
-  async findOne(id: number): Promise<User> {
+  async findById(id: number): Promise<User> {
     const user = await this.userRepository.findOneBy({ id });
 
     if (!user) {
@@ -73,7 +73,7 @@ export class UserService {
 
   async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
     await this.userRepository.update(id, updateUserDto);
-    return this.findOne(id);
+    return this.findById(id);
   }
 
   async remove(id: number): Promise<void> {

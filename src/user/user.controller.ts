@@ -7,11 +7,19 @@ import {
   Param,
   Delete,
   Query,
+  UseGuards,
+  Request,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @ApiTags('users')
 @Controller('users')
@@ -23,6 +31,15 @@ export class UserController {
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);
+  }
+
+  @ApiOperation({ summary: 'Получить информацию о текущем пользователе' })
+  @ApiResponse({ status: 200, description: 'Информация о пользователе' })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get('me')
+  getMe(@Request() req) {
+    return req.user;
   }
 
   @ApiOperation({ summary: 'Получить всех пользователей' })
@@ -37,7 +54,7 @@ export class UserController {
   @ApiResponse({ status: 404, description: 'Пользователь не найден' })
   @Get(':id')
   findOne(@Param('id') id: number) {
-    return this.userService.findOne(id);
+    return this.userService.findById(id);
   }
 
   @ApiOperation({ summary: 'Получить пользователя по имени' })

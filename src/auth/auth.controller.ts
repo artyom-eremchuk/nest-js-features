@@ -15,21 +15,27 @@ export class AuthController {
     status: 201,
     description: 'Пользователь успешно зарегистрирован',
   })
-  @Post('register')
+  @Post('register') // register
   async register(@Body() createUserDto: CreateUserDto) {
     return this.authService.create(createUserDto);
   }
 
-  @ApiOperation({ summary: 'Авторизация пользователя' })
+  @ApiOperation({ summary: 'Авторизация пользователя и получение токенов' })
   @ApiBody({ type: LoginUserDto })
   @ApiResponse({
     status: 201,
-    description: 'Пользователь успешно вошел в систему',
+    description:
+      'Пользователь успешно вошел в систему и получил access и refresh токены',
   })
   @UseGuards(LocalAuthGuard)
-  @Post('login')
+  @Post('login') // login
   async login(@Request() req) {
-    return req.user;
+    const user = req.user;
+
+    const accessToken = await this.authService.generateAccessToken(user);
+    const refreshToken = await this.authService.generateRefreshToken(user);
+
+    return { access_token: accessToken, refresh_token: refreshToken };
   }
 
   @ApiOperation({ summary: 'Выход пользователя' })
@@ -37,9 +43,19 @@ export class AuthController {
     status: 201,
     description: 'Пользователь успешно вышел из системы. Сессия была очищена.',
   })
-  @Post('logout')
+  @Post('logout') // logout
   async logout(@Request() req) {
     req.session.destroy();
     return { msg: 'Сессия пользователя завершена.' };
+  }
+
+  @ApiOperation({ summary: 'Обновление токенов' })
+  @ApiResponse({
+    status: 200,
+    description: 'Новые access_token и refresh_token успешно сгенерированы',
+  })
+  @Post('refresh-token') // refresh token
+  async refreshToken(@Body('refresh_token') refreshToken: string) {
+    return this.authService.refreshToken(refreshToken);
   }
 }
